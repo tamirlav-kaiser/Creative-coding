@@ -1,5 +1,5 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>סטריפים</title>
+<!doctype html><html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Strips</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -13,7 +13,7 @@
   --bg:#141413; --glass:rgba(29,28,27,.92); --fg:#ebe9e4; --muted:#9a968e; --line:#3a3834; --accent:#7d97ff; --stage:#0d0d0c; --chip:#262523; color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#141413; --glass:rgba(29,28,27,.92); --fg:#ebe9e4; --muted:#9a968e; --line:#3a3834; --accent:#7d97ff; --stage:#0d0d0c; --chip:#262523; color-scheme:dark}
 html,body{height:100%;overflow:hidden}
-body{background:var(--stage);color:var(--fg);font-family:var(--f-body);direction:rtl;font-size:12px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{background:var(--stage);color:var(--fg);font-family:var(--f-body);font-size:12px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;touch-action:none;background:var(--stage)}
 canvas#view{display:block;cursor:grab;touch-action:none}
 canvas#view.picking{cursor:crosshair}
@@ -39,7 +39,7 @@ h2{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute
 .row{display:grid;grid-template-columns:54px 1fr 32px;align-items:center;gap:6px}
 .row label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row input[type=range]{width:100%;min-width:0;margin:0;accent-color:var(--accent)}
-.val{font-family:var(--f-mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;direction:ltr;text-align:left}
+.val{font-family:var(--f-mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
 .btns{display:flex;flex-wrap:wrap;gap:4px}
 button,.file{font:inherit;font-size:12px;padding:4px 9px;border:1px solid var(--line);background:var(--chip);color:var(--fg);border-radius:5px;cursor:pointer;line-height:1.3}
 button:hover,.file:hover{border-color:var(--fg)}
@@ -70,93 +70,93 @@ select{font:inherit;font-size:12px;padding:3px 4px;border:1px solid var(--line);
 </style>
 
 <div class="stage" id="stage"><canvas id="view"></canvas></div>
-<div class="hint" id="hint">גרירה מזיזה סטריפים · לחיצה ארוכה שולחת גל</div>
+<div class="hint" id="hint">Drag to shift strips · long-press sends a wave</div>
 
 <!-- top: file -->
 <div class="drawer t" id="dT">
-  <button class="handle" data-d="dT">תמונה</button>
-  <label class="file">החלף תמונה<input type="file" id="file" accept="image/*"></label>
-  <button class="primary" id="export">שמור תוצאה</button>
-  <button id="resetAll">איפוס</button>
+  <button class="handle" data-d="dT">Image</button>
+  <label class="file">Replace image<input type="file" id="file" accept="image/*"></label>
+  <button class="primary" id="export">Save result</button>
+  <button id="resetAll">Reset</button>
 </div>
 
 <!-- right: cut -->
 <div class="drawer r" id="dR">
-  <button class="handle" data-d="dR">חיתוך</button>
+  <button class="handle" data-d="dR">Cut</button>
   <div class="scroll">
     <div class="seg">
-      <button id="tab0" aria-pressed="true">חיתוך 1<span class="dot"></span></button>
-      <button id="tab1" aria-pressed="false">חיתוך 2<span class="dot"></span></button>
+      <button id="tab0" aria-pressed="true">Cut 1<span class="dot"></span></button>
+      <button id="tab1" aria-pressed="false">Cut 2<span class="dot"></span></button>
     </div>
-    <label class="chk" id="onWrap">פעיל<input type="checkbox" id="on"></label>
+    <label class="chk" id="onWrap">Active<input type="checkbox" id="on"></label>
     <div class="seg">
-      <button id="typeStrips" aria-pressed="true">סטריפים</button>
-      <button id="typeRings" aria-pressed="false">טבעות</button>
+      <button id="typeStrips" aria-pressed="true">Strips</button>
+      <button id="typeRings" aria-pressed="false">Rings</button>
     </div>
     <div class="group" id="gStrips">
-      <div class="row"><label for="angle">זווית</label><input type="range" id="angle" min="-90" max="90" step="1"><span class="val" id="angleV"></span></div>
+      <div class="row"><label for="angle">Angle</label><input type="range" id="angle" min="-90" max="90" step="1"><span class="val" id="angleV"></span></div>
       <div class="angles">
         <button data-a="0">0°</button><button data-a="45">45°</button><button data-a="90">90°</button><button data-a="-45">-45°</button><button data-a="-30">-30°</button>
       </div>
     </div>
     <div class="group" id="gRings" hidden>
-      <div class="row"><label for="cx">מרכז ←→</label><input type="range" id="cx" min="0" max="1" step="0.005"><span class="val" id="cxV"></span></div>
-      <div class="row"><label for="cy">מרכז ↑↓</label><input type="range" id="cy" min="0" max="1" step="0.005"><span class="val" id="cyV"></span></div>
-      <button id="pickCenter" aria-pressed="false">קבע מרכז בלחיצה</button>
+      <div class="row"><label for="cx">Center ←→</label><input type="range" id="cx" min="0" max="1" step="0.005"><span class="val" id="cxV"></span></div>
+      <div class="row"><label for="cy">Center ↑↓</label><input type="range" id="cy" min="0" max="1" step="0.005"><span class="val" id="cyV"></span></div>
+      <button id="pickCenter" aria-pressed="false">Tap to set center</button>
     </div>
-    <div class="row"><label for="cols">כמות</label><input type="range" id="cols" min="2" max="120" step="1"><span class="val" id="colsV"></span></div>
-    <div class="row"><label for="gap">רווח</label><input type="range" id="gap" min="0" max="20" step="0.5"><span class="val" id="gapV"></span></div>
+    <div class="row"><label for="cols">Count</label><input type="range" id="cols" min="2" max="120" step="1"><span class="val" id="colsV"></span></div>
+    <div class="row"><label for="gap">Gap</label><input type="range" id="gap" min="0" max="20" step="0.5"><span class="val" id="gapV"></span></div>
     <div class="btns">
-      <button id="random">ערבוב</button>
-      <button id="smooth">החלקה</button>
-      <button id="straight">יישור</button>
+      <button id="random">Shuffle</button>
+      <button id="smooth">Smooth</button>
+      <button id="straight">Straighten</button>
     </div>
     <div class="sep"></div>
-    <h2>גרירה</h2>
-    <div class="row"><label for="radius">רדיוס</label><input type="range" id="radius" min="0" max="20" step="0.5"><span class="val" id="radiusV"></span></div>
-    <div class="row"><label for="sens">רגישות</label><input type="range" id="sens" min="0.1" max="1.5" step="0.05"><span class="val" id="sensV"></span></div>
+    <h2>Drag</h2>
+    <div class="row"><label for="radius">Radius</label><input type="range" id="radius" min="0" max="20" step="0.5"><span class="val" id="radiusV"></span></div>
+    <div class="row"><label for="sens">Sensitivity</label><input type="range" id="sens" min="0.1" max="1.5" step="0.05"><span class="val" id="sensV"></span></div>
   </div>
 </div>
 
 <!-- left: background -->
 <div class="drawer l" id="dL">
-  <button class="handle" data-d="dL">רקע</button>
-  <h2>צבע רקע</h2>
+  <button class="handle" data-d="dL">Background</button>
+  <h2>Background color</h2>
   <div class="swatches">
-    <button class="sw" data-c="#ffffff" style="background:#ffffff" aria-label="לבן"></button>
-    <button class="sw" data-c="#000000" style="background:#000000" aria-label="שחור"></button>
-    <button class="sw" data-c="#c9c4ba" style="background:#c9c4ba" aria-label="אפור חם"></button>
-    <button class="sw" data-c="#6e7378" style="background:#6e7378" aria-label="אפור כחלחל"></button>
-    <button class="sw" data-c="#b23a2a" style="background:#b23a2a" aria-label="אדום"></button>
-    <button class="sw" data-c="#1f3a5f" style="background:#1f3a5f" aria-label="כחול"></button>
+    <button class="sw" data-c="#ffffff" style="background:#ffffff" aria-label="White"></button>
+    <button class="sw" data-c="#000000" style="background:#000000" aria-label="Black"></button>
+    <button class="sw" data-c="#c9c4ba" style="background:#c9c4ba" aria-label="Warm grey"></button>
+    <button class="sw" data-c="#6e7378" style="background:#6e7378" aria-label="Blue grey"></button>
+    <button class="sw" data-c="#b23a2a" style="background:#b23a2a" aria-label="Red"></button>
+    <button class="sw" data-c="#1f3a5f" style="background:#1f3a5f" aria-label="Blue"></button>
   </div>
-  <input type="color" id="bgc" value="#ffffff" aria-label="צבע מותאם">
+  <input type="color" id="bgc" value="#ffffff" aria-label="Custom color">
   <div class="sep"></div>
-  <label class="chk">רקע אינסופי<input type="checkbox" id="wrap"></label>
+  <label class="chk">Infinite background<input type="checkbox" id="wrap"></label>
 </div>
 
 <!-- bottom: animation -->
 <div class="drawer b" id="dB">
-  <button class="handle" data-d="dB">אנימציה</button>
+  <button class="handle" data-d="dB">Animation</button>
   <div class="animGrid">
-    <div class="btns"><button id="play" aria-pressed="false">הפעל</button>
-      <select id="mode" aria-label="סוג תנועה">
-        <option value="wave">גל</option>
-        <option value="flow">זרימה</option>
-        <option value="ripple">אדווה</option>
-        <option value="drift">סחיפה</option>
-        <option value="none">ללא</option>
+    <div class="btns"><button id="play" aria-pressed="false">Play</button>
+      <select id="mode" aria-label="Motion type">
+        <option value="wave">Wave</option>
+        <option value="flow">Flow</option>
+        <option value="ripple">Ripple</option>
+        <option value="drift">Drift</option>
+        <option value="none">None</option>
       </select></div>
-    <div class="row"><label for="amp">עוצמה</label><input type="range" id="amp" min="0" max="0.5" step="0.005"><span class="val" id="ampV"></span></div>
-    <div class="row"><label for="wl">אורך גל</label><input type="range" id="wl" min="2" max="80" step="0.5"><span class="val" id="wlV"></span></div>
-    <div class="row"><label for="speed">מהירות</label><input type="range" id="speed" min="0.05" max="3" step="0.05"><span class="val" id="speedV"></span></div>
+    <div class="row"><label for="amp">Strength</label><input type="range" id="amp" min="0" max="0.5" step="0.005"><span class="val" id="ampV"></span></div>
+    <div class="row"><label for="wl">Wavelength</label><input type="range" id="wl" min="2" max="80" step="0.5"><span class="val" id="wlV"></span></div>
+    <div class="row"><label for="speed">Speed</label><input type="range" id="speed" min="0.05" max="3" step="0.05"><span class="val" id="speedV"></span></div>
   </div>
 </div>
 
 <div class="overlay" id="ov" hidden>
-  <img id="ovImg" alt="התוצאה">
-  <p>לחיצה ארוכה (בטלפון) או קליק ימני ← שמירת תמונה</p>
-  <button id="ovClose">סגור</button>
+  <img id="ovImg" alt="Result">
+  <p>Long-press (phone) or right-click → save image</p>
+  <button id="ovClose">Close</button>
 </div>
 
 <script>
@@ -181,7 +181,7 @@ function sample(){
   g.fillStyle='#f4e4c4';g.beginPath();g.arc(600,640,190,0,7);g.fill();
   g.fillStyle='#141a26';
   for(let i=0;i<3;i++){g.beginPath();g.moveTo(0,1500);for(let x=0;x<=1200;x+=20)g.lineTo(x,1000+i*140+Math.sin(x/(130+i*40)+i)*60);g.lineTo(1200,1500);g.closePath();g.globalAlpha=.55+i*.2;g.fill()}
-  g.globalAlpha=1;g.fillStyle='rgba(255,255,255,.85)';g.font='600 34px Heebo, sans-serif';g.textAlign='center';g.fillText('דוגמה · "תמונה" למעלה להחלפה',600,140);
+  g.globalAlpha=1;g.fillStyle='rgba(255,255,255,.85)';g.font='600 34px Heebo, sans-serif';g.textAlign='center';g.fillText('Sample · use "Image" at the top to replace',600,140);
   const im=new Image();im.onload=()=>{img=im;fit();draw()};im.src=c.toDataURL();
 }
 
@@ -337,7 +337,7 @@ function syncUI(){
   ['radius','sens','speed'].forEach(k=>{$(k).value=G[k];showVal(k,G[k])});
   $('wrap').checked=G.wrap;
   document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===G.bg));$('bgc').value=G.bg;
-  $('play').setAttribute('aria-pressed',G.play);$('play').textContent=G.play?'עצור':'הפעל';
+  $('play').setAttribute('aria-pressed',G.play);$('play').textContent=G.play?'Pause':'Play';
 }
 [0,1].forEach(i=>$('tab'+i).addEventListener('click',()=>{
   cur=i; if(i===1&&!layers[1].touched){layers[1].on=true;layers[1].touched=true}

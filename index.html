@@ -1,25 +1,24 @@
 <!doctype html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Creative Coding</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Heebo:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
 <style>
 /* Layout: a single pixel "desktop" — title banner, search prompt, a grid of app windows. One committed look (bright green CRT), no dark variant. */
 :root{
   --lime:#3dff2e; --lime-2:#2be01c; --ink:#062b00; --black:#0a0f08; --paper:#eaffe2; --hot:#ff2bd6;
   --f-pixel:"Press Start 2P",ui-monospace,monospace;
   --f-term:"VT323",ui-monospace,monospace;
-  --f-he:"Heebo",system-ui,sans-serif;
   --px:4px;
   color-scheme:light;
 }
 *{box-sizing:border-box}
 html{background:var(--lime)}
 body{
-  margin:0;min-height:100vh;color:var(--ink);font-family:var(--f-term),var(--f-he);font-size:22px;line-height:1.15;
+  margin:0;min-height:100vh;color:var(--ink);font-family:var(--f-term);font-size:22px;line-height:1.15;
   background-color:var(--lime);
   /* 2px ordered dither, the way 90s desktops faked a second shade */
   background-image:
@@ -35,7 +34,7 @@ main{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 .banner{background:var(--black);color:var(--lime);padding:22px 20px 18px;box-shadow:8px 8px 0 var(--ink);border:var(--px) solid var(--black);position:relative;direction:ltr}
 .banner h1{font-family:var(--f-pixel);font-weight:400;font-size:clamp(20px,5.2vw,40px);line-height:1.25;margin:0;letter-spacing:.02em;text-shadow:4px 4px 0 #0f5a00}
 .banner h1 .cur{display:inline-block;width:.6em;height:1em;background:var(--lime);vertical-align:-.12em;margin-left:.15em;animation:blink 1s steps(1) infinite}
-.banner p{margin:12px 0 0;font-size:22px;color:#a6ff9c;direction:rtl;text-align:left;font-family:var(--f-he);font-weight:500;font-size:15px;letter-spacing:.01em}
+.banner p{margin:12px 0 0;font-size:22px;font-size:24px;color:#a6ff9c}
 .banner .meta{position:absolute;top:10px;right:12px;font-family:var(--f-pixel);font-size:9px;color:#5fd352}
 @keyframes blink{50%{opacity:0}}
 
@@ -60,9 +59,9 @@ main{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 .screen{background:var(--black);margin:10px 10px 0;aspect-ratio:16/9;max-width:100%;display:flex;align-items:center;justify-content:center;border:2px solid #1b3b14;overflow:hidden}
 .screen svg{width:58%;height:auto;shape-rendering:crispEdges}
 .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
-.body h2{margin:0;font-family:var(--f-he);font-weight:700;font-size:20px;color:var(--black)}
-.body p{margin:0;font-family:var(--f-he);font-weight:500;font-size:14px;line-height:1.5;color:#1d4a14}
-.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px;direction:ltr;justify-content:flex-end}
+.body h2{margin:0;font-family:var(--f-pixel);font-weight:400;font-size:13px;line-height:1.5;color:var(--black)}
+.body p{margin:0;font-family:var(--f-term);font-size:21px;line-height:1.1;color:#1d4a14}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px;direction:ltr;justify-content:flex-start}
 .tag{font-family:var(--f-pixel);font-size:8px;padding:5px 6px;background:var(--lime);border:2px solid var(--black)}
 .tag.new{background:var(--hot);color:#fff}
 .key{font-family:var(--f-pixel);font-size:9px;color:#5fd352}
@@ -77,12 +76,12 @@ footer{font-family:var(--f-pixel);font-size:9px;color:var(--ink);direction:ltr;d
   <header class="banner">
     <span class="meta">EPHEMERAL.LAB v1.0</span>
     <h1>CREATIVE_CODING<span class="cur" aria-hidden="true"></span></h1>
-    <p>סקיצות אינטראקטיביות שרצות בדפדפן. בוחרים אחת ונכנסים.</p>
+    <p>Interactive sketches that run in the browser. Pick one and dive in.</p>
   </header>
 
   <div class="prompt">
     <label for="q">C:\&gt;</label>
-    <input id="q" type="search" placeholder="search / חיפוש..." autocomplete="off">
+    <input id="q" type="search" placeholder="search..." autocomplete="off">
     <span class="count" id="count"></span>
   </div>
 
@@ -94,14 +93,14 @@ footer{font-family:var(--f-pixel);font-size:9px;color:var(--ink);direction:ltr;d
 <script>
 // Add a new app: one entry here, folder with index.html next to this page.
 const APPS=[
-  {path:'game-of-life-3d/',file:'LIFE3D.EXE',title:'Life³ — משחק החיים בתלת־ממד',
-   desc:'שישה סוגי גריד, מצבי דעיכה וצבע לפי יצור. נגיעה מוסיפה יצור, שתי אצבעות לסיבוב וזום.',
+  {path:'game-of-life-3d/',file:'LIFE3D.EXE',title:'Life³ — 3D Game of Life',
+   desc:'Six lattice types, decay states and a colour per creature. Tap to add a creature, two fingers to rotate and zoom.',
    tags:['3D','THREE.JS','CELLULAR'],icon:'cube',added:'2026-10-16'},
-  {path:'game-of-life-2d/',file:'LIFE2D.EXE',title:'גריד החיים',
-   desc:'משחק החיים של קונווי בדו־ממד. נגיעה מוסיפה גלשנים, חלליות, פולסרים ותותח גוספר.',
+  {path:'game-of-life-2d/',file:'LIFE2D.EXE',title:'Life Grid',
+   desc:'Conway’s Game of Life in 2D. Tap to drop gliders, spaceships, pulsars and a Gosper gun.',
    tags:['2D','CANVAS','CELLULAR'],icon:'glider',added:'2026-10-16'},
-  {path:'image-slicer/',file:'SLICER.EXE',title:'סטריפים',
-   desc:'חיתוך תמונה לסטריפים או טבעות, גרירה של כל רצועה, אנימציית גלים ושמירת התוצאה.',
+  {path:'image-slicer/',file:'SLICER.EXE',title:'Strips',
+   desc:'Slice an image into strips or rings, drag each slice, animate waves and save the result.',
    tags:['IMAGE','CANVAS'],icon:'strips',added:'2026-10-16'},
 ];
 
