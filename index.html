@@ -93,6 +93,9 @@ footer{font-family:var(--f-pixel);font-size:9px;color:var(--ink);direction:ltr;d
 <script>
 // Add a new app: one entry here, folder with index.html next to this page.
 const APPS=[
+  {path:'swarm/',file:'SWARM.EXE',title:'Swarm',
+   desc:'Boids flocking in a box, sphere, pyramid, torus or your own Rhino mesh. One finger attracts, two fingers rotate.',
+   tags:['3D','THREE.JS','BOIDS'],icon:'swarm',added:'2026-10-16'},
   {path:'game-of-life-3d/',file:'LIFE3D.EXE',title:'Life³ — 3D Game of Life',
    desc:'Six lattice types, decay states and a colour per creature. Tap to add a creature, two fingers to rotate and zoom.',
    tags:['3D','THREE.JS','CELLULAR'],icon:'cube',added:'2026-10-16'},
@@ -106,6 +109,7 @@ const APPS=[
 
 // 8-bit icons on a 16×9 pixel screen
 const ICONS={
+  swarm:'<rect x="3" y="5" width="1" height="1" opacity=".3"/><rect x="5" y="4" width="1" height="1" opacity=".5"/><rect x="7" y="3" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="11" y="6" width="1" height="1" opacity=".5"/><rect x="12" y="3" width="1" height="1"/><rect x="2" y="2" width="1" height="1" opacity=".3"/><rect x="13" y="1" width="1" height="1" opacity=".6"/>',
   glider:'<rect x="7" y="2" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="6" y="4" width="3" height="1"/><rect x="2" y="6" width="1" height="1" opacity=".35"/><rect x="12" y="1" width="1" height="1" opacity=".35"/><rect x="11" y="6" width="2" height="1" opacity=".35"/>',
   strips:'<rect x="2" y="1" width="2" height="6"/><rect x="5" y="2" width="2" height="6"/><rect x="8" y="0" width="2" height="6"/><rect x="11" y="3" width="2" height="6"/>'
 };
