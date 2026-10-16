@@ -1,0 +1,151 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>גריד החיים</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: full-height white sheet with a slim control rail beneath it, like a drafting board */
+:root{
+  --paper:#ffffff; --grid:#e6e9ee; --ink:#14161a; --muted:#6b7280;
+  --rail:#f4f5f7; --accent:#1f5eff; --cell:#14161a;
+  --f-ui:"Rubik",system-ui,sans-serif; --f-num:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --rail:#16181c; --ink:#eceef2; --muted:#9aa1ad; --accent:#6b93ff; color-scheme:dark }}
+:root[data-theme="dark"]{ --rail:#16181c; --ink:#eceef2; --muted:#9aa1ad; --accent:#6b93ff; color-scheme:dark }
+html,body{height:100%}
+body{background:var(--rail);color:var(--ink);font-family:var(--f-ui);display:flex;flex-direction:column;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:12px;box-sizing:border-box;gap:10px;direction:rtl;overflow:hidden}
+#wrap{flex:1;min-height:0;position:relative;border-radius:6px;overflow:hidden;background:var(--paper);
+  box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+button{font:500 14px var(--f-ui);border:1px solid transparent;border-radius:999px;padding:8px 16px;
+  background:var(--paper);color:#14161a;box-shadow:0 0 0 1px rgba(0,0,0,.12);cursor:pointer}
+button.primary{background:var(--accent);color:#fff;box-shadow:none;min-width:84px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.speed{display:flex;align-items:center;gap:8px;flex:1;min-width:180px}
+.speed input{flex:1;accent-color:var(--accent)}
+.lab{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.num{font:500 13px var(--f-num);font-variant-numeric:tabular-nums;color:var(--ink);min-width:7ch;text-align:left}
+select{font:14px var(--f-ui);padding:7px 10px;border-radius:999px;border:0;box-shadow:0 0 0 1px rgba(0,0,0,.12);
+  background:var(--paper);color:#14161a}
+.stats{font:500 12px var(--f-num);color:var(--muted);font-variant-numeric:tabular-nums;margin-inline-start:auto}
+</style>
+
+<div id="wrap"><canvas id="c" aria-label="גריד משחק החיים"></canvas></div>
+
+<div class="bar">
+  <button id="play" class="primary">עצור</button>
+  <button id="step">צעד</button>
+  <button id="clear">נקה</button>
+  <label class="lab" for="shape">נגיעה מוסיפה</label>
+  <select id="shape">
+    <option value="glider">גלשן</option>
+    <option value="lwss">חללית</option>
+    <option value="rpent">R-פנטומינו</option>
+    <option value="pulsar">פולסר</option>
+    <option value="gun">תותח גוספר</option>
+    <option value="cell">תא בודד</option>
+  </select>
+  <span class="stats" id="stats">דור 0 · 0 תאים</span>
+</div>
+<div class="bar">
+  <div class="speed">
+    <label class="lab" for="spd">קצב</label>
+    <input id="spd" type="range" min="1" max="60" value="12">
+    <span class="num" id="spdv">12 דור/ש׳</span>
+  </div>
+</div>
+
+<script>
+const SHAPES={
+  cell:[[0,0]],
+  glider:[[1,0],[2,1],[0,2],[1,2],[2,2]],
+  lwss:[[1,0],[4,0],[0,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3]],
+  rpent:[[1,0],[2,0],[0,1],[1,1],[1,2]],
+  pulsar:(()=>{const p=[],r=[2,3,4,8,9,10];for(const a of r)for(const b of[0,5,7,12]){p.push([a,b]);p.push([b,a]);}return p})(),
+  gun:[[24,0],[22,1],[24,1],[12,2],[13,2],[20,2],[21,2],[34,2],[35,2],[11,3],[15,3],[20,3],[21,3],[34,3],[35,3],
+       [0,4],[1,4],[10,4],[16,4],[20,4],[21,4],[0,5],[1,5],[10,5],[14,5],[16,5],[17,5],[22,5],[24,5],
+       [10,6],[16,6],[24,6],[11,7],[15,7],[12,8],[13,8]]
+};
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap');
+const CS=12; let W=0,H=0,grid,next,age,gen=0,running=true,rate=12,acc=0,last=0;
+
+function resize(){
+  const r=wrap.getBoundingClientRect(),dpr=devicePixelRatio||1;
+  cv.width=r.width*dpr; cv.height=r.height*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  const nW=Math.max(10,Math.floor(r.width/CS)),nH=Math.max(10,Math.floor(r.height/CS));
+  const g=new Uint8Array(nW*nH),a=new Uint16Array(nW*nH);
+  if(grid)for(let y=0;y<Math.min(H,nH);y++)for(let x=0;x<Math.min(W,nW);x++){g[y*nW+x]=grid[y*W+x];a[y*nW+x]=age[y*W+x];}
+  W=nW;H=nH;grid=g;age=a;next=new Uint8Array(W*H);draw();
+}
+
+function place(name,cx,cy){
+  let pts=SHAPES[name];
+  if(name==='glider'||name==='lwss'||name==='rpent'){ // random orientation
+    const fx=Math.random()<.5,fy=Math.random()<.5,sw=Math.random()<.5;
+    pts=pts.map(([x,y])=>{if(sw)[x,y]=[y,x];return[fx?-x:x,fy?-y:y]});
+  }
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const ox=cx-Math.round((Math.min(...xs)+Math.max(...xs))/2),oy=cy-Math.round((Math.min(...ys)+Math.max(...ys))/2);
+  for(const[x,y]of pts){const X=((ox+x)%W+W)%W,Y=((oy+y)%H+H)%H;grid[Y*W+X]=1;age[Y*W+X]=0;}
+}
+
+function step(){
+  for(let y=0;y<H;y++){const ym=((y-1+H)%H)*W,y0=y*W,yp=((y+1)%H)*W;
+    for(let x=0;x<W;x++){const xm=(x-1+W)%W,xp=(x+1)%W;
+      const n=grid[ym+xm]+grid[ym+x]+grid[ym+xp]+grid[y0+xm]+grid[y0+xp]+grid[yp+xm]+grid[yp+x]+grid[yp+xp];
+      const i=y0+x,alive=grid[i];
+      next[i]=(n===3||(alive&&n===2))?1:0;
+      age[i]=next[i]?(alive?Math.min(age[i]+1,999):0):0;}}
+  [grid,next]=[next,grid];gen++;
+}
+
+function draw(){
+  const w=W*CS,h=H*CS;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.strokeStyle='#e6e9ee';ctx.lineWidth=1;ctx.beginPath();
+  for(let x=0;x<=W;x++){ctx.moveTo(x*CS+.5,0);ctx.lineTo(x*CS+.5,h);}
+  for(let y=0;y<=H;y++){ctx.moveTo(0,y*CS+.5);ctx.lineTo(w,y*CS+.5);}
+  ctx.stroke();
+  let pop=0;
+  for(let i=0;i<W*H;i++)if(grid[i]){pop++;
+    const a=age[i];ctx.fillStyle=a<1?'#1f5eff':a<4?'#2b3a66':'#14161a';
+    ctx.fillRect((i%W)*CS+1.5,((i/W)|0)*CS+1.5,CS-2,CS-2);}
+  document.getElementById('stats').textContent=`דור ${gen.toLocaleString('he-IL')} · ${pop.toLocaleString('he-IL')} תאים`;
+}
+
+function loop(t){
+  const dt=Math.min(250,t-last);last=t;
+  if(running){acc+=dt;const p=1000/rate;let k=0;while(acc>=p&&k<5){step();acc-=p;k++;}if(k===5)acc=0;}
+  draw();requestAnimationFrame(loop);
+}
+
+let painting=false,lastCell=null;
+function cellAt(e){const r=cv.getBoundingClientRect();return[Math.floor((e.clientX-r.left)/CS),Math.floor((e.clientY-r.top)/CS)];}
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);painting=true;const c=cellAt(e);lastCell=c.join();
+  place(document.getElementById('shape').value,c[0],c[1]);});
+cv.addEventListener('pointermove',e=>{if(!painting)return;const s=document.getElementById('shape').value;
+  if(s!=='cell')return;const c=cellAt(e);if(c.join()!==lastCell){lastCell=c.join();place('cell',c[0],c[1]);}});
+['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,()=>painting=false));
+
+const playBtn=document.getElementById('play');
+playBtn.onclick=()=>{running=!running;playBtn.textContent=running?'עצור':'הפעל';};
+document.getElementById('step').onclick=()=>{running=false;playBtn.textContent='הפעל';step();};
+document.getElementById('clear').onclick=()=>{grid.fill(0);age.fill(0);gen=0;};
+const spd=document.getElementById('spd'),spdv=document.getElementById('spdv');
+spd.oninput=()=>{rate=+spd.value;spdv.textContent=rate+' דור/ש׳';};
+
+new ResizeObserver(resize).observe(wrap);
+resize();
+// starting sample: a few creatures so the board is alive on open
+place('glider',Math.floor(W*.2),Math.floor(H*.25));
+place('lwss',Math.floor(W*.7),Math.floor(H*.3));
+place('rpent',Math.floor(W*.5),Math.floor(H*.65));
+place('glider',Math.floor(W*.8),Math.floor(H*.8));
+requestAnimationFrame(t=>{last=t;loop(t)});
+</script>
+
+</body></html>
